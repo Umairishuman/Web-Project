@@ -1,1 +1,17 @@
 *.pdf
+*.docx
+.env
+.DS_Store
+node_modules/
+dist/
+build/
+coverage/
+logs/
+*.log   
+*.bak
+*.tmp
+.idea/
+.vscode/
+*.swp
+*.swo
+*.class
