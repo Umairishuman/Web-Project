@@ -15,3 +15,7 @@ logs/
 *.swp
 *.swo
 *.class
+.vercel
+frontend/dist
+frontend/.env
+backend/.env
