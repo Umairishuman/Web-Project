@@ -27,9 +27,9 @@ import { Profile } from './pages/Profile';
 
 function App() {
   return (
-    <AuthProvider>
-      <ToastProvider>
-        <Router>
+    <Router>
+      <AuthProvider>
+        <ToastProvider>
           <div className="min-h-screen flex flex-col bg-surface">
             <Navbar />
             <main className="flex-1">
@@ -156,9 +156,9 @@ function App() {
             </main>
             <Footer />
           </div>
-        </Router>
-      </ToastProvider>
-    </AuthProvider>
+        </ToastProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 
