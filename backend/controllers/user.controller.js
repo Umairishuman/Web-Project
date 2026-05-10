@@ -14,12 +14,24 @@ const updateProfile = async (req, res) => {
     const { name, profilePhoto } = req.body;
     const user = await User.findById(req.user._id);
 
-    if (name) user.name = name;
-    if (profilePhoto) user.profilePhoto = profilePhoto;
+    if (name !== undefined) user.name = name;
+    if (profilePhoto !== undefined) user.profilePhoto = profilePhoto || null;
 
     await user.save();
 
-    res.json({ success: true, message: 'Profile updated', data: { user } });
+    res.json({
+      success: true,
+      message: 'Profile updated',
+      data: {
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          profilePhoto: user.profilePhoto || null,
+        },
+      },
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

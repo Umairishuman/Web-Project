@@ -1,51 +1,90 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import api from '../services/api';
 
-interface User {
+export type Role = 'admin' | 'teacher' | 'student';
+
+export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'admin' | 'teacher' | 'student';
+  role: Role;
+  profilePhoto?: string | null;
 }
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
-  login: (user: User, token: string) => void;
-  logout: () => void;
+  login: (user: User) => void;
+  logout: () => Promise<void>;
+  updateUser: (patch: Partial<User>) => void;
   isAuthenticated: boolean;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    try {
+      const cached = localStorage.getItem('user');
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    const storedToken = localStorage.getItem('token');
-    if (storedUser && storedToken) {
-      setUser(JSON.parse(storedUser));
-      setToken(storedToken);
-    }
+    let cancelled = false;
+    const verify = async () => {
+      try {
+        const r = await api.get('/auth/me');
+        if (cancelled) return;
+        if (r.data?.success && r.data.data?.user) {
+          setUser(r.data.data.user);
+          localStorage.setItem('user', JSON.stringify(r.data.data.user));
+        }
+      } catch {
+        if (cancelled) return;
+        setUser(null);
+        localStorage.removeItem('user');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    verify();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const login = (userData: User, accessToken: string) => {
+  const login = (userData: User) => {
     setUser(userData);
-    setToken(accessToken);
     localStorage.setItem('user', JSON.stringify(userData));
-    localStorage.setItem('token', accessToken);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch {
+      // ignore — clear local state anyway
+    }
     setUser(null);
-    setToken(null);
     localStorage.removeItem('user');
-    localStorage.removeItem('token');
+  };
+
+  const updateUser = (patch: Partial<User>) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const next = { ...prev, ...patch };
+      localStorage.setItem('user', JSON.stringify(next));
+      return next;
+    });
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider
+      value={{ user, login, logout, updateUser, isAuthenticated: !!user, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -23,7 +23,6 @@ const passwordResetSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-passwordResetSchema.index({ token: 1 });
 passwordResetSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 module.exports = mongoose.model('PasswordReset', passwordResetSchema);
