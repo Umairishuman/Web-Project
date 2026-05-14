@@ -9,7 +9,7 @@
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "vercel-build": "npm install --prefix frontend --include=dev && npm run build --prefix frontend"
+        "vercel-build": "npm install --include=dev && npm install --prefix frontend --include=dev && npm run build --prefix frontend"
     },
     "repository": {
         "type": "git",
