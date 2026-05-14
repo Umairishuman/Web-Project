@@ -1,15 +1,16 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npm run vercel-build",
-  "outputDirectory": "frontend/dist",
-  "framework": null,
-  "functions": {
-    "api/[...slug].js": {
-      "maxDuration": 10,
-      "memory": 1024
-    }
-  },
-  "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
-  ]
+    "$schema": "https://openapi.vercel.sh/vercel.json",
+    "buildCommand": "npm run vercel-build",
+    "outputDirectory": "frontend/dist",
+    "framework": null,
+    "functions": {
+        "api/[...slug].js": {
+            "maxDuration": 10,
+            "memory": 1024
+        }
+    },
+    "rewrites": [
+        { "source": "/api/(.*)", "destination": "/api/[...slug]" },
+        { "source": "/((?!api/).*)", "destination": "/index.html" }
+    ]
 }
